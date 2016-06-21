@@ -21,7 +21,8 @@ rtcStop_32768_Clkout	KEYWORD2
 rtcStartCounter1		KEYWORD2
 rtcClearInterrupts		KEYWORD2
 rtcIsRunning			KEYWORD2
-
+supplyVoltage			KEYWORD2		
+rpiCurrent				KEYWORD2
 #######################################
 # Instances (KEYWORD2)
 #######################################
