@@ -42,7 +42,7 @@ class SleepyPiClass : public PCF8523 , public LowPowerClass {
 	void enablePiPower(bool enable);
 
 	// Control
-	void  StartPiShutdown(void);
+	void  startPiShutdown(void);
 	bool  checkPiStatus(bool forceShutdownIfNotRunning);
 	void  piShutdown(bool forceShutdown);
 
@@ -54,9 +54,12 @@ class SleepyPiClass : public PCF8523 , public LowPowerClass {
 	uint8_t rtcClearInterrupts(void);
 	uint8_t rtcIsRunning(void);
 
-
 	// Wakeup
 	void enableWakeupAlarm(bool enable);
+
+	// Monitoring
+	float supplyVoltage(void);
+	float rpiCurrent(void);	
 
   private:
     static bool exists;

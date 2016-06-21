@@ -47,9 +47,11 @@
 #define ENABLE_EXT_PWR_PIN	4				// PD4 - O/P take high to enable the External Supplies
 #define CMD_PI_TO_SHDWN_PIN	17				// PC3 - 0/P Handshake to request the Pi to shutdown - Active high
 #define PI_IS_RUNNING		7				// PD7 - I/P Handshake to show that the Pi is running - Active High
-#define V_SUPPLY_PIN		20				// I/P - A/I Supply monitoring pin
+#define V_SUPPLY_PIN		A6				// I/P - A/I Supply monitoring pin
+#define I_MONITOR_PIN		A7				// I/P - A/I Current monitoring pin	  
 #define POWER_BUTTON_PIN	3				// PD3 - I/P User Power-on Button (INT1) - Active Low
 #define ALARM_PIN			2				// PD2 - I/P Pin that pulses when the alarm has expired (INT0) - Active Low
+
 
 // Constructors
 SleepyPiClass::SleepyPiClass()
@@ -202,7 +204,7 @@ void SleepyPiClass::enableWakeupAlarm(bool enable)
 	is given notice to begin shutting down.
 
 +****************************************************/
-void SleepyPiClass::StartPiShutdown(void)
+void SleepyPiClass::startPiShutdown(void)
 {
 	if(simulationMode == true){
 		// Serial.println("StartPiShutdown()");
@@ -331,6 +333,7 @@ bool SleepyPiClass::rtcInit(boolean reset)
 	SleepyPiClass::rtcStop_32768_Clkout();   
 	SleepyPiClass::setBatterySwitchover();
 	SleepyPiClass::clearRtcInterruptFlags();
+	SleepyPiClass::rtcCapSelect(eCAP_12_5pF);
 
 	return true;
 }
@@ -359,6 +362,41 @@ uint8_t SleepyPiClass::rtcIsRunning()
 	return isrunning();
 }
 
+float SleepyPiClass::supplyVoltage(void)
+{
 
+	int 	reading;
+	float   voltage;
+
+	// Read
+	reading = analogRead(V_SUPPLY_PIN);   
+  
+	// Convert
+	voltage =  3.22 * (float)reading;     // Raw voltage reading
+	// 10-bit ADC resolution = 3.3 / 1024 = 3.22mV
+  
+	return  voltage / 52;             	  // Scaled to Volts
+
+}
+
+float SleepyPiClass::rpiCurrent(void)
+{
+	int 	reading;
+	float   current;
+
+	// Read
+	reading = analogRead(I_MONITOR_PIN);  
+	// remove lower bit noise
+	if(reading <= 3)
+	{
+		reading = 0;
+	}
+	// Convert
+	current =  3.22 * (float)reading;     // Raw current reading
+	// 10-bit ADC resolution = 3.3 / 1024 = 3.22mV
+  
+	return  current; 					  // in mA            
+
+}	
 
 SleepyPiClass SleepyPi;
