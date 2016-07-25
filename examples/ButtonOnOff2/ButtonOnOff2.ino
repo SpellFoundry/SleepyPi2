@@ -41,6 +41,12 @@ ePISTATE       pi_state = ePI_OFF;
 bool state = LOW;
 unsigned long  time, timePress;
 
+// .. Setup the Periodic Timer
+// .. use either eTB_SECOND or eTB_MINUTE or eTB_HOUR
+eTIMER_TIMEBASE  PeriodicTimer_Timebase     = eTB_SECOND;   // e.g. Timebase set to seconds
+uint8_t          PeriodicTimer_Value        = 5;            // Timer Interval in units of Timebase e.g 10 seconds
+
+
 void button_isr()
 {
     // A handler for the Button interrupt.
@@ -67,13 +73,15 @@ void setup()
   // Allow wake up triggered by button press
   attachInterrupt(1, button_isr, LOW);       // button pin  
 
-    SleepyPi.rtcInit(true);
+  SleepyPi.rtcInit(true);
 }
 
 void loop() 
 {
     bool pi_running;
     unsigned long buttonTime;
+
+    SleepyPi.rtcClearInterrupts();
  
     // Enter power down state with ADC and BOD module disabled.
     // Wake up when wake button is pressed.
@@ -84,9 +92,9 @@ void loop()
         case eWAIT:
              // Allow wake up alarm to trigger interrupt on falling edge.
             attachInterrupt(0, alarm_isr, FALLING);    // Alarm pin
-            // Setup the Alarm Counter
-            SleepyPi.enableWakeupAlarm();
-            SleepyPi.setAlarm(5); // 2 Seconds or whatever.. 
+            
+            // Set the Periodic Timer
+            SleepyPi.setTimer1(PeriodicTimer_Timebase, PeriodicTimer_Value);
             
             // Enter power down state with ADC and BOD module disabled.
             // Wake up when wake up pin is low or Alarm fired.
