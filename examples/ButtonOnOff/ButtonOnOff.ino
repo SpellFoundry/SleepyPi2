@@ -116,7 +116,7 @@ void loop()
                      SleepyPi.enableExtPower(false);         
                   } else if (buttonTime > kBUTTON_POWEROFF_TIME_MS){
                       // Start a shutdown
-                      SleepyPi.piShutdown(true);
+                      SleepyPi.piShutdown();
                       SleepyPi.enableExtPower(false);            
                   } else { 
                      // Button not held off long - Do nothing
