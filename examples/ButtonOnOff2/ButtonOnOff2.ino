@@ -4,6 +4,11 @@
 // again. If the button is held dwon the Sleepy Pi will cut the power to the
 // RPi regardless of any handshaking.
 //
+// This is a modified version of ButtonOnOff adding the functionality
+// of detecting whether the Rpi is running or not. If it detects that 
+// is has been shutdown (possibly manually by the User) then it will
+// cut the power to the Rpi and go into a sleep state.
+//
 
 // **** INCLUDES *****
 #include "SleepyPi2.h"
@@ -81,8 +86,6 @@ void loop()
     bool pi_running;
     unsigned long buttonTime;
 
-    SleepyPi.rtcClearInterrupts();
- 
     // Enter power down state with ADC and BOD module disabled.
     // Wake up when wake button is pressed.
     // Once button is pressed stay awake - this allows the timer to keep running
@@ -90,6 +93,9 @@ void loop()
     switch(buttonState)
     {
         case eWAIT:
+        
+            SleepyPi.rtcClearInterrupts();  
+            
              // Allow wake up alarm to trigger interrupt on falling edge.
             attachInterrupt(0, alarm_isr, FALLING);    // Alarm pin
             
@@ -102,12 +108,12 @@ void loop()
             // GO TO SLEEP....
             // ....
             // ....
-            // I'm awake !!!      
+            // I'm awake !!!  
             // What woke me up? Was it a button press or a scheduled wake?
             // Lets check on button press
            if(buttonPressed == false)
            {           
-                // Was an alarm interrupt     
+                // Was an alarm interrupt   
                 // Do some general housekeeping
                 // ...Check on our RPi
                 digitalWrite(LED_PIN,HIGH);    // Flash LE
@@ -170,6 +176,9 @@ void loop()
                 }
                 buttonState = eWAIT; // Loop back around and go to sleep again
                 digitalWrite(LED_PIN,LOW);
+                 // Disable external pin interrupt on wake up pin.
+                detachInterrupt(0);
+                SleepyPi.ackTimer1();                 
            }
            else
            {
@@ -180,7 +189,7 @@ void loop()
               // Disable external pin interrupt on wake up pin.
               detachInterrupt(1);
               buttonState = eBUTTON_PRESSED; 
-           }
+           }  
            break;
         case eBUTTON_PRESSED:
             buttonPressed = false;  
@@ -228,7 +237,7 @@ void loop()
                 {
                     // Start a shutdown
                     pi_state = ePI_SHUTTING_DOWN; 
-                    SleepyPi.piShutdown(false);      // true
+                    SleepyPi.piShutdown();      // true
                     SleepyPi.enableExtPower(false);            
                 } 
                 else 
