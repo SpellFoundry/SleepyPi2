@@ -265,6 +265,53 @@ bool SleepyPiClass::checkPiStatus(bool forceShutdownIfNotRunning)
 }
 /* **************************************************+
 
+	--checkPiStatus (current monitor)
+
+	Monitor the current draw of the Rpi and deteremine
+	whether the Raspberry Pi is running or not.
+
+	The theshold_mA is the threshold below which the
+	Rpi is considered shutdown in the traditional sense.
+	For example a Rpi3 will settle on about 75mA after
+	a "sudo shutdown -h now" command. As a rule of thumb
+	anything nelow 90mA should be considered shutdown.
+
+	Note a Pi Zero or A+ can have "active" currents as 
+	low as 100mA
+
+	Option to Force a shutdown i.e. remove power to
+	the Raspberry Pi if it is not runnng.
+
++****************************************************/
+
+bool SleepyPiClass::checkPiStatus(long threshold_mA, bool forceShutdownIfNotRunning)
+{
+
+	float 	pi_current = 0.0;
+
+	// Read the RPi Current draw
+	pi_current = SleepyPiClass::rpiCurrent();
+	if(pi_current >= (float)threshold_mA)
+	{
+		// RasPi is still running
+		pi_running = true;
+		return true;
+	}
+	else
+	{
+		// Pi not running - either booting or manually shutdown
+		if(forceShutdownIfNotRunning == true){
+			// so cut the power
+			SleepyPiClass::enablePiPower(false);
+			pi_running = false;
+
+		}
+		return false;
+	}
+
+}
+/* **************************************************+
+
 	--piShutdown
 
 	Set the Handshake lines to command a shutdown of
@@ -278,7 +325,7 @@ bool SleepyPiClass::checkPiStatus(bool forceShutdownIfNotRunning)
 	the Raspberry Pi if it is not handshaking.
 
 +****************************************************/
-void SleepyPiClass::piShutdown(bool forceShutdown)
+void SleepyPiClass::piShutdown(void)
 {
 	int	handShake;
 	unsigned long timeStart, timeNow, testTime;
@@ -307,13 +354,73 @@ void SleepyPiClass::piShutdown(bool forceShutdown)
 		// Switch off the Pi
 		delay(5000); // delay to make sure the Pi has finished shutting down
 		SleepyPiClass::enablePiPower(false);
+		digitalWrite(CMD_PI_TO_SHDWN_PIN,LOW);	
+	}
+
+	return;
+}
+/* **************************************************+
+
+	--piShutdown (current monitor)
+
+	Set the Handshake lines to command a shutdown of
+	the Raspberry Pi. Then wait for the Raspberry Pi
+	to shutdown by monitoring the handshake line that 
+	indicates that the Raspberry Pi is running. Once
+	the RPi has shutdown remove the power after a 
+	small guard interval.
+
+	Option to Force a shutdown i.e. remove power to
+	the Raspberry Pi if it is not handshaking.
+
++****************************************************/
+void SleepyPiClass::piShutdown(long threshold_mA)
+{
+	// int	handShake;
+	bool pi_running;
+	unsigned long timeStart, timeNow, testTime;
+	
+	// Command the Sleepy Pi to shutdown
+	if(simulationMode == true){
+		// Serial.println("piShutdown()");
+		// Switch off the Pi
+		delay(5000);
+		SleepyPiClass::enablePiPower(false);
+	}
+	else {
+
+		digitalWrite(CMD_PI_TO_SHDWN_PIN,HIGH);		
+		
+		// Wait for the Pi to shutdown 
+		timeStart = millis();
+		testTime = 0;
+		pi_running = SleepyPiClass::checkPiStatus(threshold_mA,false);
+		while((pi_running == true) && (testTime < kFAILSAFETIME_MS)){
+			pi_running = SleepyPiClass::checkPiStatus(threshold_mA,false); 
+			delay(50);
+			timeNow = millis();
+			testTime = timeNow - timeStart;
+		}
+
+		// Switch off the Pi
+		delay(5000); // delay to make sure the Pi has finished shutting down
+		SleepyPiClass::enablePiPower(false);
+		digitalWrite(CMD_PI_TO_SHDWN_PIN,LOW);	
 	}
 
 	return;
 }
 
-// RTC Routines
-bool SleepyPiClass::rtcInit(boolean reset)
+/* **************************************************+
+
+	--rtcInit
+
+	Setup the PCF8523 RTC registers with some essential 
+	settings for Sleepy Pi functioning.
+
+
++****************************************************/
+bool SleepyPiClass::rtcInit(bool reset)
 {
 
 	uint8_t tmp_reg;
@@ -337,31 +444,68 @@ bool SleepyPiClass::rtcInit(boolean reset)
 
 	return true;
 }
+/* **************************************************+
 
+	--rtcReset
+
+	Reset the PCF8523 RTC 
+
++****************************************************/
 void SleepyPiClass::rtcReset()
 {	
 	// Rest the RTC
 	reset();
 }
+/* **************************************************+
 
+	--rtcStop_32768_Clkout
+
+	Stop the default 32khz clock being output on the
+	/Alarm pin  
+
++****************************************************/
 void SleepyPiClass::rtcStop_32768_Clkout()
 {	
-	// Stop the default 32kHz output on teh INT1 pin as we use this
+	// Stop the default 32kHz output on the INT1 pin as we use this
 	// as an alarm
 	stop_32768_clkout();
 }
 
+/* **************************************************+
 
+	--rtcClearInterrupts
+
+	Clear any active interrupt flags  
+
++****************************************************/
 uint8_t SleepyPiClass::rtcClearInterrupts()
 {	
 	return clearRtcInterruptFlags();
 }
+/* **************************************************+
 
+	--rtcIsRunning
+
+	Find out if the RTC is currently running 
+	or stopped 
+
++****************************************************/
 uint8_t SleepyPiClass::rtcIsRunning()
 {
 	return isrunning();
 }
+/* **************************************************+
 
+	--supplyVoltage
+
+	Measure the Supply voltage of the External supply
+	to the Sleepy Pi and return it as a scaled voltage
+	in Volts.
+
+	Note: This is not calibrated and should only be used 
+	as a rough guide.
+
++****************************************************/
 float SleepyPiClass::supplyVoltage(void)
 {
 
@@ -378,7 +522,17 @@ float SleepyPiClass::supplyVoltage(void)
 	return  voltage / 52;             	  // Scaled to Volts
 
 }
+/* **************************************************+
 
+	--rpiCurrent
+
+	Measure the Rpi current and return it as a
+	scaled current in mA.
+
+	Note: This is not calibrated and should only be used 
+	as a rough guide. 
+
++****************************************************/
 float SleepyPiClass::rpiCurrent(void)
 {
 	int 	reading;

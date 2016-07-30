@@ -22,6 +22,16 @@
 #define kONBUTTONTIME_MS		3000		// 
 #define kFORCEOFFBUTTONTIME_MS	1000
 
+typedef enum {
+	eZero 		= 48,   
+	eA        	= 70,   // 
+	eA_Plus		= 55,   
+	eB 			= 75,	 
+	eB_PLUS 	= 73,	
+	eB2         = 70,
+	eB3         = 75
+} eRPI_SHUTDOWN_CURRENT;
+
 // library interface description
 //class SleepyPiClass {
 class SleepyPiClass : public PCF8523 , public LowPowerClass {
@@ -44,7 +54,9 @@ class SleepyPiClass : public PCF8523 , public LowPowerClass {
 	// Control
 	void  startPiShutdown(void);
 	bool  checkPiStatus(bool forceShutdownIfNotRunning);
-	void  piShutdown(bool forceShutdown);
+	bool  checkPiStatus(long threshold_mA, bool forceShutdownIfNotRunning);
+	void  piShutdown(void);
+	void  piShutdown(long threshold_mA);
 
 	// Time
 	bool rtcInit(boolean reset); 
