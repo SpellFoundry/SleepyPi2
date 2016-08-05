@@ -59,7 +59,7 @@ class SleepyPiClass : public PCF8523 , public LowPowerClass {
 	void  piShutdown(long threshold_mA);
 
 	// Time
-	bool rtcInit(boolean reset); 
+	bool rtcInit(bool reset); 
 	void rtcReset(void);
 	void rtcStop_32768_Clkout(void);
 	void rtcStartCounter1(uint8_t value);
