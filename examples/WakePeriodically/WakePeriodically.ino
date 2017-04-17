@@ -6,11 +6,12 @@
 //
 //     SleepyPi.enablePiPower(true);  
 //
-// after arduino wakeup. 
+// after arduino wakeup. For a clearer picture of how to do this see the
+// eaxmple WakePiPeriodically which wakes the Rpi at fixed intervals. 
 // 
 // To test on the RPi without power cycling and using the Arduino IDE
-// to view the debug messages, fit the Power Jumper or enable
-// self-power
+// to view the debug messages, either fit the Power Jumper or enable
+// self-power. http://spellfoundry.com/sleepy-pi/programming-arduino-ide/
 // 
 
 // **** INCLUDES *****
@@ -31,7 +32,7 @@ const int LED_PIN = 13;
 // ++++++++++++++++++++ Change me ++++++++++++++++++
 // .. Setup the Periodic Timer
 // .. use either eTB_SECOND or eTB_MINUTE or eTB_HOUR
-eTIMER_TIMEBASE  PeriodicTimer_Timebase     = eTB_SECOND;   // e.g. Timebase set to seconds
+eTIMER_TIMEBASE  PeriodicTimer_Timebase     = eTB_SECOND;   // e.g. Timebase set to seconds. Other options: eTB_MINUTE, eTB_HOUR
 uint8_t          PeriodicTimer_Value        = 10;           // Timer Interval in units of Timebase e.g 10 seconds
 // ++++++++++++++++++++ End Change me ++++++++++++++++++
 
@@ -117,6 +118,11 @@ void loop()
     digitalWrite(LED_PIN,LOW);    // Switch off LED   
 }
 
+// **********************************************************************
+// 
+//  - Helper routines
+//
+// **********************************************************************
 void printTimeNow()
 {
     // Read the time
