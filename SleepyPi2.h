@@ -18,7 +18,6 @@
 //#define DEBUG_MESSAGES
 
 #define kFAILSAFETIME_MS		30000		// Failsafe shutdown time in milliseconds
-#define kONBUTTONTIME_MS		1000		// 
 #define kONBUTTONTIME_MS		3000		// 
 #define kFORCEOFFBUTTONTIME_MS	1000
 
