@@ -38,7 +38,7 @@ const int LED_PIN = 13;
 // ++++++++++++++++++++ Change me ++++++++++++++++++
 uint8_t  WakeUp_StartHour       = 7;   // Hour in 24 hour clock
 uint8_t  WakeUp_StartMinute     = 00;  // Minutes 
-uint8_t  Bedtime_SleepHour      = 20;   // Hour in 24 hour clock
+uint8_t  Bedtime_SleepHour      = 20;  // Hour in 24 hour clock
 uint8_t  Bedtime_SleepMinute    = 00;  // Minutes 
 
 // ++++++++++++++++++++ End Change me ++++++++++++++++++
@@ -158,7 +158,7 @@ void loop()
           delay(50);
           digitalWrite(LED_PIN,LOW);    // Switch off LED
         
-        // ++++++ uncomment to Power-dwon the Rpi ++++++++
+        // ++++++ uncomment to Power-down the Rpi ++++++++
         // SleepyPi.piShutdown();         
           pi_awake = false;            
      }

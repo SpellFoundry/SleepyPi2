@@ -8,7 +8,8 @@
 // hasn't already shut the Rpi down. The system then goes into low power mode until 
 // the next scheduled time interval to wakeup.
 //
-// This example shows an alternative method than the Timer to do periodic wakeups.
+// This example shows an alternative method than using the Timer to do periodic wakeups.
+// (as shown in WakePiPeriodically.ino example)
 //
 // To test on the RPi without power cycling and using the Arduino IDE
 // to view the debug messages, comment out these line (with a //):
@@ -37,8 +38,7 @@ const int LED_PIN = 13;
 
 // Globals
 // ++++++++++++++++++++ CHANGE ME ++++++++++++++++++
-//uint8_t  WakeUp_StartHour     = 22;   // Hour in 24 hour clock
-uint8_t  WakeUp_StartMinute   = 2;   // Minutes 
+uint8_t  WakeUp_StartMinute   = 5;   // Minutes 
 
 unsigned long    MAX_RPI_TIME_TO_STAY_AWAKE_MS  = 60000;       // in ms - so this is 60 seconds
 #define kPI_CURRENT_THRESHOLD_MA   110                         // Shutdown current threshold in mA. When the
@@ -83,8 +83,8 @@ void setup()
   printTimeNow();
   
   Serial.print("Alarm Set for every: ");
-  Serial.print(WakeUp_StartMinute);
-  Serial.println(" minutes");
+  Serial.print(WakeUp_StartMinute);     
+  Serial.println(" minutes");         
 
   // Calculate the initial Start Time
   nextWakeTime = CalcNextWakeTime();
@@ -101,8 +101,7 @@ void loop()
 
     SleepyPi.enableWakeupAlarm(true);
     
-    // Setup the Alarm Time
- //   SleepyPi.setAlarm(WakeUp_StartHour,WakeUp_StartMinute);   // Hours & Minutes i.e. 22:07 on the 24 hour clock    
+    // Setup the Alarm Time 
     SleepyPi.setAlarm(nextWakeTime);     
     
     // PrintRTCRegisters();   // for debug
@@ -186,7 +185,7 @@ uint8_t CalcNextWakeTime(void)
   else if (nextWakeTime > 60){
       nextWakeTime = nextWakeTime - 60;  
   }
-
+ 
   return nextWakeTime;
 }
 
