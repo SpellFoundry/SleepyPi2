@@ -50,8 +50,8 @@ unsigned long    RPI_TIME_TO_STAY_AWAKE_MS  = 60000;       // in ms - so this is
 // Define Daytime
 uint8_t  WakeUp_StartHour       = 7;   // Hour in 24 hour clock
 uint8_t  WakeUp_StartMinute     = 00;  // Minutes 
-uint8_t  Bedtime_SleepHour      = 20;  // Hour in 24 hour clock
-uint8_t  Bedtime_SleepMinute    = 00;  // Minutes 
+uint8_t  Bedtime_StartHour      = 20;  // Hour in 24 hour clock
+uint8_t  Bedtime_StartMinute    = 00;  // Minutes 
 
 // ++++++++++++++++++++ END CHANGE ME ++++++++++++++++++
 
