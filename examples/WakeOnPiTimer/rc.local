@@ -1,0 +1,43 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# =====================================#
+# this file should be in /etc/rc.local #
+# =====================================#
+
+# turn off pi red LED
+sudo sh -c 'echo none > /sys/class/leds/led1/trigger'
+sudo sh -c 'echo 0 > /sys/class/leds/led1/brightness'
+
+# pigpiod used for GPIO manupulation
+sudo pigpiod
+
+# let sleepypi know pi is running
+pigs w 25 1
+
+# alarm/button press mode
+[ `pigs r 17` -eq 1 ] && echo "button wakeup mode" || echo "alarms wakup mode"
+
+# do things here
+sleep 123
+
+# set next wake up time
+# in 3 minutes
+i2cset -y 1 4 0 3 i
+
+# or in 1 hour
+# i2cset -y 1 4 1 0 i
+
+# shutdown (sleepy will cut down power)
+sudo shutdown -h now
+
+exit 0
