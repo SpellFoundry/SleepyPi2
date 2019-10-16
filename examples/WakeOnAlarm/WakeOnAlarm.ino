@@ -17,7 +17,7 @@
 
 // **** INCLUDES *****
 #include "SleepyPi2.h"
-#include <Time.h>
+#include <TimeLib.h>
 #include <LowPower.h>
 #include <PCF8523.h>
 #include <Wire.h>
