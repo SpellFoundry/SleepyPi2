@@ -11,7 +11,7 @@
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <PCF8523.h>
-#include <Time.h>
+#include <TimeLib.h>
 #include <Wire.h>
 #include <LowPower.h>
 
@@ -21,6 +21,7 @@
 #define kONBUTTONTIME_MS		3000		// 
 #define kFORCEOFFBUTTONTIME_MS	1000
 
+// Typical shutdown currents of various models of RPis in mA
 typedef enum {
 	eZero 		= 48,   
 	eA        	= 70,   // 
